@@ -59,16 +59,22 @@ def fft_similarity(fft_1, fft_2):
 
 def load_dataset(folder_path = os.path.abspath(f'./fft_arrays/**/')):
     data = {}
-
+    anomalies = []
     for i in range(0,11):
         data[i] = []
         for path in natsorted(glob(folder_path, recursive=True)):
-            pattern = re.compile(f"/arr_{i}/.+")
-            if pattern.search(path):
+            pattern_1 = re.compile(f"/arr_{i}/.+")
+            if pattern_1.search(path):
                 arr = np.load(path)
                 data[i].append(arr)
 
-    return data
+    for path in natsorted(glob(folder_path, recursive=True)):
+        pattern_2 = re.compile(f"fft_anomalous_dice_arrays/img_")
+        if pattern_2.search(path):
+            arr = np.load(path)
+            anomalies.append(arr)
+
+    return data, anomalies
 
 def create_class_avg(data):
     avg_dict = {}
@@ -76,14 +82,22 @@ def create_class_avg(data):
         avg_dict[_class] = sum(arr) / len(arr)
     return avg_dict
 
-models = create_class_avg(load_dataset())
-fft_test = load_fft("638")
-
 def predict_class(fft_test, models):
     scores = []
     for _class, fft in models.items():
         scores.append((fft_similarity(fft_test, fft)))
-    if np.min(scores) < 30000:
+    if np.min(scores) < 35000:
         return np.min(scores), np.argmin(scores), scores
     else:
         return -1
+
+data, anomalies = load_dataset()
+models = create_class_avg(data)
+
+for fft in anomalies:
+    print(predict_class(fft, models))
+
+print("------")
+
+for fft in data[6]:
+    print(predict_class(fft, models))
