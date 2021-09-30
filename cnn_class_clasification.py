@@ -127,7 +127,9 @@ def plot_value_array(predictions_array, true_label):
     plt.xticks(range(len(class_names)))
     plt.yticks([])
     thisplot = plt.bar(range(len(class_names)), predictions_array, color="#777777")
-    plt.ylim([-50, 50])
+    min_value = min(predictions_array)*0.1
+    max_value = max(predictions_array)*0.1
+    plt.ylim([min(predictions_array)+min_value, max(predictions_array)+max_value])
     predicted_label = np.argmax(predictions_array)
 
     thisplot[predicted_label].set_color('red')
@@ -138,9 +140,7 @@ def plot_class(img_class, class_value):
     plt.xticks([])
     plt.yticks([])
     plt.imshow(img_class)
-    plt.xlabel("random Image from "+"\n"+
-               "training with same class"+"\n"+
-               "{}".format(class_value))
+    plt.xlabel("Class value: {}".format(class_value))
 
 
 train_images = []
@@ -151,15 +151,6 @@ for images, labels in train_ds.take(1):
     
 train_images = np.squeeze(train_images)    
     
-     # for i in range(len(class_names)):
-#     # for i in range(len(labels)):
-#         # if i in labels[i]:   
-#             ax = plt.subplot(4, 3, i + 1)
-#             plt.imshow(images[i].numpy().astype("uint8"))
-#             plt.title(class_names[labels[i]])
-#             plt.axis("off")
-
-
 
 predictions = model.predict(test_generator)
 anomalous_predictions = model.predict(anomalous_generator)
@@ -182,10 +173,13 @@ def final_plot_normal(i):
     
     plt.figure(figsize=(10,7))
     plt.subplot(1,3,1)
+    plt.gca().set_title('Image to predict')     
     plot_image(predictions[i], test_labels[i][0], test_images[i])
     plt.subplot(1,3,2)
+    plt.gca().set_title('Similarity values')       
     plot_value_array(predictions[i],  test_labels[i][0])
     plt.subplot(1,3,3)
+    plt.gca().set_title('Random image with same class')       
     plot_class(train_images[train_img_index], test_labels[i][0])
     plt.show()
 
@@ -197,14 +191,17 @@ def final_plot_anomalous(i):
             next
     plt.figure(figsize=(10,7))
     plt.subplot(1,3,1)
+    plt.gca().set_title('Image to predict')    
     plot_image(anomalous_predictions[i], anomalous_labels[i][0], anomalous_images[i])
     plt.subplot(1,3,2)
+    plt.gca().set_title('Similarity values')    
     plot_value_array(anomalous_predictions[i],  anomalous_labels[i][0])
     plt.subplot(1,3,3)
+    plt.gca().set_title('Random image with same class')    
     plot_class(train_images[train_img_index], np.argmax(anomalous_predictions[i]))
     plt.show()
 
 
-final_plot_normal(20)
+final_plot_normal(10)
 final_plot_anomalous(4)
 
