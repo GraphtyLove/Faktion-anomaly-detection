@@ -5,33 +5,21 @@ import plotly.io as pio
 import numpy as np
 import os
 import re
+import time
 from natsort import natsorted
 from glob import glob
 pio.renderers.default='browser'
 import plotly.graph_objects as go
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics.pairwise import cosine_similarity
 
-
-def img_to_fft(path):
-    # load the image
-    image_defect = Image.open('img_17413_cropped.jpg')
-    image_normal = Image.open('674.jpg')
-    image_defect_bw = image_defect.convert('L')
-    image_normal_bw = image_normal.convert('L')
-
-    # convert image to numpy array
-    data_defect = np.asarray(image_defect_bw)
-    data_normal = np.asarray(image_normal_bw)
-
-    data_defect_fft = abs(fft(data_defect))
-    data_normal_fft = abs(fft(data_normal))
 
 def normalize_fft(fft):
     return MinMaxScaler().fit_transform(fft.reshape((128*128, 1))).reshape((128,128))
 
 def load_fft(file_name):
 
-    folder_path = os.path.abspath(f'./fft_arrays/**/')
+    folder_path = os.path.abspath(f'/Users/Corty/Downloads/fft_arrays/**/')
     arr = None
 
     for file in glob(folder_path, recursive=True):
@@ -55,9 +43,13 @@ def plot_fft(file_name):
 
 def fft_similarity(fft_1, fft_2):
 
-    return np.linalg.norm(fft_1 - fft_2)
+    score = np.linalg.norm(fft_1[15:83, 0:3] - fft_2[15:83, 0:3]) + np.linalg.norm(fft_1[15:83, -16:] - fft_2[15:83, -16:])
+    cosine = 0
+    for i in range(5):
+        cosine += cosine_similarity(fft_1[:, i : i+1].reshape(1, -1), fft_2[:, i : i+1].reshape(1, -1))
+    return score * cosine
 
-def load_dataset(folder_path = os.path.abspath(f'./fft_arrays/**/')):
+def load_dataset(folder_path = os.path.abspath(f'/Users/Corty/Downloads/fft_arrays/**/')):
     data = {}
     anomalies = []
     for i in range(0,11):
@@ -86,18 +78,51 @@ def predict_class(fft_test, models):
     scores = []
     for _class, fft in models.items():
         scores.append((fft_similarity(fft_test, fft)))
-    if np.min(scores) < 35000:
-        return np.min(scores), np.argmin(scores), scores
+    return np.min(scores), np.argmin(scores), scores
+
+def create_metrics(data, models):
+    max_dict = {}
+    for _class, arr in data.items():
+        _max = 0
+        score = 0
+        for fft in arr:
+            if predict_class(fft, models):
+                score = predict_class(fft, models)[0]
+            if score > _max:
+                _max = score
+        max_dict[_class] = _max
+    return max_dict
+
+def predict_anomaly(fft_test, models, threshold_dict):
+    input_score, predicted_class, class_scores = predict_class(fft_test, models)
+    if input_score > threshold_dict[predicted_class]:
+        return True
     else:
-        return -1
+        return False
+
+
+start = time.time()
+
 
 data, anomalies = load_dataset()
+print(time.time() - start)
 models = create_class_avg(data)
+print(time.time() - start)
+thresholds_dict = create_metrics(data, models)
 
-for fft in anomalies:
-    print(predict_class(fft, models))
+print(time.time() - start)
+
+detections = 0
+for i, fft in enumerate(anomalies):
+    print(i, predict_anomaly(fft, models, thresholds_dict), thresholds_dict[predict_class(fft, models)[1]], predict_class(fft, models))
+    print()
+    detections += predict_anomaly(fft, models, thresholds_dict)
 
 print("------")
 
-for fft in data[6]:
-    print(predict_class(fft, models))
+print(thresholds_dict)
+print(detections, (detections/82)*100)
+# for fft in data[0]:
+#     print(predict_class(fft, models))
+#     print(predict_anomaly(fft, models, thresholds_dict))
+# print(time.time() - start)
