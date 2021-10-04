@@ -55,13 +55,13 @@ def load_dataset(folder_path = os.path.abspath(f'/Users/Corty/Downloads/fft_arra
     for i in range(0,11):
         data[i] = []
         for path in natsorted(glob(folder_path, recursive=True)):
-            pattern_1 = re.compile(f"/arr_{i}/.+")
+            pattern_1 = re.compile(f"arr_{i}/.+")
             if pattern_1.search(path):
                 arr = np.load(path)
                 data[i].append(arr)
 
     for path in natsorted(glob(folder_path, recursive=True)):
-        pattern_2 = re.compile(f"fft_anomalous_dice_arrays/img_")
+        pattern_2 = re.compile(f"fft_anomalous_dice_arrays/.+")
         if pattern_2.search(path):
             arr = np.load(path)
             anomalies.append(arr)
@@ -122,7 +122,7 @@ print("------")
 
 print(thresholds_dict)
 print(detections, (detections/82)*100)
-# for fft in data[0]:
-#     print(predict_class(fft, models))
-#     print(predict_anomaly(fft, models, thresholds_dict))
-# print(time.time() - start)
+for fft in data[0]:
+    print(predict_class(fft, models))
+    print(predict_anomaly(fft, models, thresholds_dict))
+print(time.time() - start)
