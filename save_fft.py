@@ -28,7 +28,7 @@ for j in range(0,11):
             data = asarray(image)
             data = exposure.adjust_gamma(data, gamma=1.1, gain=1.001)
             data = exposure.adjust_log(data, gain = 1.001)
-            # data = exposure.adjust_sigmoid(data, cutoff=0.2, gain=10, inv=False)
+            data = exposure.adjust_sigmoid(data, cutoff=0.65, gain=15, inv=True)
             data = data[15:113, 15:113]
             data_fft = abs(fft(data))
             all_files[i] = all_files[i].replace('.jpg', '')
@@ -55,7 +55,7 @@ for i in range(len(all_files)):
         data = asarray(image)
         data = exposure.adjust_gamma(data, gamma=1.1, gain=1.001)
         data = exposure.adjust_log(data, gain=1.001)
-        # data = exposure.adjust_sigmoid(data, cutoff=0.2, gain=10, inv=False)
+        data = exposure.adjust_sigmoid(data, cutoff=0.55, gain=15, inv=True)
         data = data[15:113, 15:113]
         data_fft = abs(fft(data))
         all_files[i] = all_files[i].replace('.jpg', '')
