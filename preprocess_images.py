@@ -18,7 +18,7 @@ def process_image(path="/Users/Corty/Downloads/anomalous_dice/img_17450_cropped.
 def adjust_exposure(image: np.ndarray):
     image = exposure.adjust_gamma(image, gamma=1.1, gain=1.001)
     image = exposure.adjust_log(image, gain = 1.001)
-    image = exposure.adjust_sigmoid(image, cutoff=0.65, gain=15, inv=True)
+    image = exposure.adjust_sigmoid(image, cutoff=0.20, gain=20, inv=False)
     return image
 
 process_image("/Users/Corty/Downloads/normal_dice/0/99.jpg")

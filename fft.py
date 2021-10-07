@@ -1,5 +1,3 @@
-from PIL import Image
-from scipy.fft import fft, ifft
 import pandas as pd
 import plotly.io as pio
 import numpy as np
@@ -10,7 +8,7 @@ from natsort import natsorted
 from glob import glob
 pio.renderers.default='browser'
 import plotly.graph_objects as go
-from sklearn.metrics.pairwise import cosine_similarity
+
 
 
 def load_fft(file_name : str):
@@ -40,10 +38,10 @@ def plot_fft(file_name : str):
 def fft_similarity(fft_1 : np.ndarray, fft_2 : np.ndarray):
     '''Docstring'''
     score = np.linalg.norm(fft_1 - fft_2)
-    cosine = 1
+    # cosine = 1
     # for i in range(5):
     #     cosine += cosine_similarity(fft_1[:, i : i+1].reshape(1, -1), fft_2[:, i : i+1].reshape(1, -1))
-    return score * cosine
+    return score
 
 def load_dataset(folder_path : str = os.path.abspath(f'/Users/Corty/Downloads/fft_arrays/**/')):
     '''Docstring'''
