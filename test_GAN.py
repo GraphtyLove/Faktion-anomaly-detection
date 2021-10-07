@@ -46,13 +46,24 @@ disc = torch.load("./discriminator.pt", map_location=torch.device('cpu'))
 img = Image.open("./data/dice/0/200.jpg").convert('RGB')
 img_tensor = transforms.ToTensor()(img).unsqueeze_(0)
 
-defect_img = Image.open("defect_crop.jpg").convert('RGB')
+defect_img = Image.open('data/defect/anomalous_dice/img_18010_cropped.jpg').convert('RGB')
 defect_tensor = transforms.ToTensor()(defect_img).unsqueeze_(0)
 
 if __name__ == "__main__":
     torch.set_printoptions(precision=10, sci_mode=False)
-    out = disc(img_tensor)
-    print(out)
+    # out = disc(img_tensor)
+    # print(out)
     out = disc(defect_tensor)
     print(out)
-    print(img_tensor)
+    # print(img_tensor)
+    scores = []
+    print(defect_ds.imgs[59])
+    for i, image in enumerate(defect_ds):
+        score = disc(image[0].unsqueeze_(0))
+        scores.append(score[0][0].item())
+        print(f"{i}: {score}")
+    mean = sum(scores) / len(scores)
+    scores_max = max(scores)
+    scores_min = min(scores)
+    print(f"Min: {scores_min}\nMax: {scores_max}\nMean: {mean}")
+
