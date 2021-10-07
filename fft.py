@@ -10,12 +10,8 @@ from natsort import natsorted
 from glob import glob
 pio.renderers.default='browser'
 import plotly.graph_objects as go
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics.pairwise import cosine_similarity
 
-
-def normalize_fft(fft : np.ndarray):
-    return MinMaxScaler().fit_transform(fft.reshape((128*128, 1))).reshape((128,128))
 
 def load_fft(file_name : str):
     '''Docstring'''
@@ -127,7 +123,12 @@ print("------")
 
 print(thresholds_dict)
 print(detections, (detections/91)*100)
-for fft in data[0]:
-    print(predict_class(fft, models))
-    print(predict_anomaly(fft, models, thresholds_dict))
-print(time.time() - start)
+
+
+for idx in range(0,11):
+    false_positives_count = 0
+    for fft in data[idx]:
+        # print(predict_class(fft, models))
+        # print(predict_anomaly(fft, models, thresholds_dict))
+        false_positives_count += predict_anomaly(fft, models, thresholds_dict)
+    print(f"{idx} : " + str(false_positives_count))
