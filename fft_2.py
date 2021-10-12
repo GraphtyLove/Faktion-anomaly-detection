@@ -4,7 +4,7 @@ import re
 from natsort import natsorted
 from glob import glob
 import joblib
-from scipy import fft
+from scipy.fft import fft
 from skimage import exposure
 
 def fft_similarity(fft_1 : np.ndarray, fft_2 : np.ndarray):
