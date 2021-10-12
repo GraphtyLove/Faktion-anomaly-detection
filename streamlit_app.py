@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 import numpy as np
 from PIL import Image
 import io
+import joblib
 from utils.plot_functions import plot_image_input_FFT, plot_image_input, plot_predict_histo, plot_same_label_img, plot_FFT
 from fft_2 import preprocess_input, fft_detector
 
@@ -39,6 +40,7 @@ model = tf.keras.models.load_model('./utils/cnn_model.h5')
 # One image for each class is loaded here named from 0 to 10
 img_all_classes = np.load('./utils/img_all_classes.npy')
 class_names = [0,1,2,3,4,5,6,7,8,9,10]
+value_to_use_if = None
 
 with st.expander('CNN method'):
     col_mid, col1, col2, col3, col_end = st.columns(5)
@@ -57,9 +59,10 @@ with st.expander('CNN method'):
         col3.pyplot(plot_3)
 
 with st.expander('FFT method'):
-    col_left, col_marg_left, col_center, col_right = st.columns((1,0.1,1,2))
+    col_mid, col_left, col_mid, col_right, col_mid = st.columns((0.7, 1, 0.7, 1, 0.7))
+    
     # To play with between 0 (Everything is an anomaly) and 1 (No False Positives on Training)
-    predictive_strength = col_center.slider("Precision-Recall Trade-Off", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
+    predictive_strength = col_right.slider("Precision-Recall Trade-Off", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
 
     if image_file is not None:
 
@@ -69,13 +72,32 @@ with st.expander('FFT method'):
         plot_FFT = plot_image_input_FFT(img, detected_class, detected_anomaly)
         col_left.pyplot(plot_FFT)
 
-        col_center.write("The trade-off between recall and precision generated the following false positives on the Training Set")
-        col_center.write(false_positives_on_training_set)
+        col_right.write("The trade-off between recall and precision generated the following false positives on the Training Set")
+        col_right.write(false_positives_on_training_set)
+        value_to_use_if  = 1
 
-        with col_right:
+    st.markdown("""---""")
+
+    col_left, col_right = st.columns((1, 1))
+    
+    with col_left:
+        if value_to_use_if is not None:
             fig = go.Figure(data=[go.Surface(z=processed_image)])
             fig.update_traces(contours_z=dict(show=True, usecolormap=True,
                                               highlightcolor="limegreen", project_z=True))
-            fig.update_layout(title={'text': "Frequency distribution for image to predict"})
+            fig.update_layout(title={'text': "FFT for Image input"})
+            fig.update_layout(width=800,
+                              height=800)
             st.plotly_chart(figure_or_data=fig, use_container_width=True)
+        
+    with col_right:
+        if value_to_use_if is not None:        
+            models = joblib.load("utils/models.pkl")
+            fig = go.Figure(data=[go.Surface(z=models[detected_class])])
+            fig.update_traces(contours_z=dict(show=True, usecolormap=True,
+                                              highlightcolor="limegreen", project_z=True))
+            fig.update_layout(title={'text': "FFT for class template"})
+            fig.update_layout(width=800,
+                              height=800)            
+            st.plotly_chart(figure_or_data=fig, use_container_width=True)    
 
