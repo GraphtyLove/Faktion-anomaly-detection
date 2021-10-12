@@ -34,10 +34,10 @@ if image_file is not None:
     st.write(file_details)
 
 # Loading the model and also all the classes images to plot
-# model = tf.keras.models.load_model('./utils/cnn_model.h5')
+model = tf.keras.models.load_model('./utils/cnn_model.h5')
 #
-# #One image for each class is loaded here named from 0 to 10
-# img_all_classes = np.load('./utils/img_all_classes.npy')
+# One image for each class is loaded here named from 0 to 10
+img_all_classes = np.load('./utils/img_all_classes.npy')
 class_names = [0,1,2,3,4,5,6,7,8,9,10]
 
 with st.expander('CNN method'):
@@ -48,13 +48,13 @@ with st.expander('CNN method'):
         dataBytesIO = io.BytesIO(data)
         img = Image.open(dataBytesIO)
         img = np.array(img)
-        # prediction = model.predict(img[None,:,:])
-        # plot_1 = plot_image_input(img, prediction)
-        # plot_2 = plot_predict_histo(prediction)
-        # plot_3 = plot_same_label_img(prediction)
-        # col1.pyplot(plot_1)
-        # col2.pyplot(plot_2)
-        # col3.pyplot(plot_3)
+        prediction = model.predict(img[None,:,:])
+        plot_1 = plot_image_input(img, prediction)
+        plot_2 = plot_predict_histo(prediction)
+        plot_3 = plot_same_label_img(prediction)
+        col1.pyplot(plot_1)
+        col2.pyplot(plot_2)
+        col3.pyplot(plot_3)
 
 with st.expander('FFT method'):
     col_left, col_marg_left, col_center, col_right = st.columns((1,0.1,1,2))
