@@ -17,10 +17,8 @@ import torchvision.transforms as tt
 
 st.set_page_config(layout="wide")
 
-st.header('THIS IS THE TITLE')
-st.subheader(
-    'a lot of text doing all the explanation, because this app has to '
-    'explain itself ')
+st.header('Faktion-anomaly-detection')
+st.subheader('Anomaly detection in images')
 
 st.write('\n')
 st.write('\n')
@@ -28,7 +26,7 @@ st.write('\n')
 st.write('\n')
 st.write('\n')
 ##Loading the image to be analize
-st.write('here something to load the image.')
+st.write('Please upload a dice image 128x128')
 image_file = st.file_uploader("Upload File", type=['jpg'])
 
 if image_file:
