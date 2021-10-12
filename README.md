@@ -1,7 +1,9 @@
 # Faktion-anomaly-detection
+
+## main view of app:
 ![image](https://user-images.githubusercontent.com/65071575/136969538-97e0d8df-1277-4f97-ad46-e4271e04778f.png)
 
-As soon an image is uploaded:
+## As soon as an dice image (128x128) is uploaded the app start working:
 
 ![image](https://user-images.githubusercontent.com/65071575/136969728-e76b33fc-e5ce-4c13-81f1-5d23a48853fe.png)
 
