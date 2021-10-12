@@ -49,7 +49,6 @@ value_to_use_if = None
 
 with st.expander('CNN method'):
     col_mid, col1, col2, col3, col_end = st.columns(5)
-    st.write('here is the method')
     if image_file:
         prediction = model.predict(img[None, :, :])
         plot_1 = plot_image_input(img, prediction)
