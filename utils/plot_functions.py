@@ -6,7 +6,10 @@ Created on Mon Oct 11 16:12:52 2021
 """
 import matplotlib.pyplot as plt
 import numpy as np
+import plotly.io as pio
+import plotly.graph_objects as go
 import os
+
 
 class_names = [0,1,2,3,4,5,6,7,8,9,10]
 class_names_FFT = {0: "One", 1: "Two", 2: "Two", 3: "Three", 4: "Three", 5: "Four",
@@ -56,4 +59,12 @@ def plot_same_label_img(prediction):
     plt.yticks([])
     ax.imshow(img_all_classes[predicted_label], cmap='gray', vmin=0, vmax=255)
     plt.xlabel("Class value: {}".format(predicted_label))
+    return fig
+
+def plot_FFT(fft):
+
+    fig = go.Figure(data=[go.Surface(z=fft)])
+    fig.update_traces(contours_z=dict(show=True, usecolormap=True,
+                                      highlightcolor="limegreen", project_z=True))
+
     return fig
