@@ -76,5 +76,6 @@ with st.expander('FFT method'):
             fig = go.Figure(data=[go.Surface(z=processed_image)])
             fig.update_traces(contours_z=dict(show=True, usecolormap=True,
                                               highlightcolor="limegreen", project_z=True))
+            fig.update_layout(title={'text': "Frequency distribution for image to predict"})
             st.plotly_chart(figure_or_data=fig, use_container_width=True)
 
