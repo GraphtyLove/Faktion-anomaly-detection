@@ -10,6 +10,13 @@ from gan.cuda import get_default_device, DeviceDataLoader
 
 
 class DCGAN:
+    """
+    Class for our Deep Convolutional Generative Adversarial Network.
+    It accepts 128x128 images.
+
+    :param loss_fn: Loss function to use when training.
+    :param ngpu: Number of GPU available. Set to 0 if no GPU.
+    """
     def __init__(self, loss_fn=nn.BCELoss, ngpu=1):
         self.image_size = 128
         self.nc = 3  # Number of channels (3 for RGB)
@@ -23,11 +30,31 @@ class DCGAN:
         self.gen = self.gen.to(self.device)
         self.disc = Discriminator(self.ngpu, self.ngf, self.nc)
         self.disc = self.disc.to(self.device)
+
+        # Enable multi-gpu if multiple GPU are available
+        if (self.device.type == 'cuda') and (self.ngpu > 1):
+            self.gen = nn.DataParallel(self.gen, list(range(self.ngpu)))
+            self.disc = nn.DataParallel(self.disc, list(range(self.ngpu)))
+
+        # Apply a random initialization with mean = 0 and stdev = 0.02.
+        # As mentioned in the DCGAN paper https://arxiv.org/pdf/1511.06434.pdf.
+        self.gen.apply(self._weights_init)
+        self.disc.apply(self._weights_init)
+
         self.fixed_latent = torch.randn(64, self.nz, 1, 1, device=self.device)
         self.loss_fn = loss_fn()
 
     def _denorm(self, img_tensors):
         return img_tensors * self.stats[1][0] + self.stats[0][0]
+
+    @staticmethod
+    def _weights_init(m):
+        classname = m.__class__.__name__
+        if classname.find('Conv') != -1:
+            nn.init.normal_(m.weight.data, 0.0, 0.02)
+        elif classname.find('BatchNorm') != -1:
+            nn.init.normal_(m.weight.data, 1.0, 0.02)
+            nn.init.constant_(m.bias.data, 0)
 
     def _save_samples(
             self,
@@ -98,6 +125,20 @@ class DCGAN:
             batch_size=128,
             start_idx=1,
             save_samples=False):
+        """
+        Train the Generator and Discriminator.
+
+        :param epochs: Number of epochs to train for.
+        :param dataset_path: Path to the training dataset
+        :param learn_rate: Learning rate of the model.
+        :param batch_size: Size of the batch the Dataset will be
+        subdivided in.
+        :param start_idx: Index to start at when saving samples.
+        :param save_samples: Save samples for visualizing progress.
+        False by default.
+        :return: Lists containing Generator Loss, Discriminator Loss, Scores on
+        real images and Scores on fake images respectively.
+        """
         torch.cuda.empty_cache()
 
         train_dataset = ImageFolder(
@@ -157,6 +198,14 @@ class DCGAN:
 
 
 class Generator(nn.Module):
+    """
+    Generator for the DCGAN.
+
+    :param ngpu: Number of GPU available.
+    :parap nz: Number of Latent Vectors Z.
+    :param ngf: Size of the feature map.
+    :param nc: Number of channels in the images.
+    """
     def __init__(self, ngpu, nz, ngf, nc):
         super(Generator, self).__init__()
         self.ngpu = ngpu
@@ -191,6 +240,13 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
+    """
+    Class containing the Discriminator for the DCGAN.
+
+    :param ngpu: Number of GPU available.
+    :param ndf: Size of the feature map.
+    :param nc: Number of channels in the images.
+    """
     def __init__(self, ngpu, ndf, nc):
         super(Discriminator, self).__init__()
         self.ngpu = ngpu
