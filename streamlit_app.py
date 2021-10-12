@@ -33,6 +33,8 @@ if image_file is not None:
 
 #Loading the model and also all the classes images to plot
 model = tf.keras.models.load_model('./utils/cnn_model.h5')
+
+#One image for each class is loaded here named from 0 to 10
 img_all_classes = np.load('./utils/img_all_classes.npy')
 class_names = [0,1,2,3,4,5,6,7,8,9,10]
 
