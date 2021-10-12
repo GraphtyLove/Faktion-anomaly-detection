@@ -9,6 +9,9 @@ import numpy as np
 import os
 
 class_names = [0,1,2,3,4,5,6,7,8,9,10]
+class_names_FFT = {0: "One", 1: "Two", 2: "Two", 3: "Three", 4: "Three", 5: "Four",
+           6: "Five", 7: "Faktion Logo", 8: "Faktion Logo", 9: "Faktion Logo",
+           10: "Faktion Logo"}
 img_all_classes = np.load('./utils/img_all_classes.npy')
 
 def plot_image_input(img, prediction):
@@ -22,7 +25,18 @@ def plot_image_input(img, prediction):
     plt.xlabel("Label predicted : {}".format(class_names[predicted_label])+"\n"+
                "Similarity value : {:2.0f}".format(np.max(prediction))+"\n")
     return fig
-    
+
+def plot_image_input_FFT(img, detected_class, detected_anomaly):
+    fig, ax = plt.subplots()
+    plt.gca().set_title('Image to predict')
+    plt.grid(False)
+    plt.xticks([])
+    plt.yticks([])
+    ax.imshow(img, cmap='gray', vmin=0, vmax=255)
+    plt.xlabel(f"Label predicted : {class_names_FFT[detected_class]}" +"\n" +
+               f"Anomaly detection : {str(detected_anomaly).upper()}")
+    return fig
+
 def plot_predict_histo(prediction):
     fig, ax = plt.subplots()
     predicted_label = np.argmax(prediction.tolist()[0])
