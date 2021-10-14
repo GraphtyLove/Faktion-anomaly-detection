@@ -166,9 +166,9 @@ class DCGAN:
         opt_g = torch.optim.Adam(self.gen.parameters(), lr=learn_rate,
                                  betas=(0.5, 0.999))
 
-        for epoch in range(epochs):
+        for epoch in tqdm(range(epochs)):
             loss_g, loss_d, real_score, fake_score = (0, 0, 0, 0)
-            for real_images, _ in tqdm(train_dl):
+            for real_images, _ in tqdm(train_dl, leave=False):
                 # Train discriminator
                 loss_d, real_score, fake_score = self._train_disc(
                     real_images,
