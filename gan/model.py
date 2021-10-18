@@ -7,6 +7,7 @@ import torch.nn as nn
 from tqdm import tqdm
 from torchvision.utils import save_image
 from gan.cuda import get_default_device, DeviceDataLoader
+import json
 
 
 class DCGAN:
@@ -43,6 +44,7 @@ class DCGAN:
 
         self.fixed_latent = torch.randn(64, self.nz, 1, 1, device=self.device)
         self.loss_fn = loss_fn()
+        self.metrics = []
 
     def _denorm(self, img_tensors):
         return img_tensors * self.stats[1][0] + self.stats[0][0]
@@ -60,7 +62,7 @@ class DCGAN:
             self,
             index,
             latent_tensors,
-            sample_dir="generated"):
+            sample_dir="/output"):
         os.makedirs(sample_dir, exist_ok=True)
         fake_images = self.gen(latent_tensors)
         fake_fname = 'generated-images-{0:0=4d}.png'.format(index)
@@ -140,6 +142,7 @@ class DCGAN:
         real images and Scores on fake images respectively.
         """
         torch.cuda.empty_cache()
+        metrics = []
 
         train_dataset = ImageFolder(
             dataset_path,
@@ -185,10 +188,10 @@ class DCGAN:
             fake_scores.append(fake_score)
 
             # Log losses & scores (last batch)
-            print(
-                "Epoch [{}/{}], loss_g: {:.4f}, loss_d: {:.4f}, "
-                "real_score: {:.4f}, fake_score: {:.4f}".format(
-                    epoch + 1, epochs, loss_g, loss_d, real_score, fake_score))
+            
+            epoch_metric = "Epoch [{}/{}], loss_g: {:.4f}, loss_d: {:.4f}, real_score: {:.4f}, fake_score: {:.4f}".format(epoch + 1, epochs, loss_g, loss_d, real_score, fake_score)
+            print(epoch_metric)
+            self.metrics.append(epoch_metric)
 
             # Save generated images
             if save_samples:
@@ -196,6 +199,11 @@ class DCGAN:
 
         return losses_g, losses_d, real_scores, fake_scores
 
+    def save_metrics(self, path):
+        print(f"Saving metrics at: {path}...")
+        with open(path, "w") as f:
+            f.write(json.dumps(self.metrics))
+        print(f"Metrics saved at: {path}.")
 
 class Generator(nn.Module):
     """
